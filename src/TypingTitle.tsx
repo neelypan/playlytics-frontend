@@ -3,25 +3,42 @@ import { useState, useEffect } from "react";
 interface Props {
   text: string;
   speed?: number;
+  pause?: number;
 }
 
-export default function TypingTitle({ text, speed = 120 }: Props) {
+export default function TypingTitle({ text, speed = 120, pause = 1000 }: Props) {
   const [display, setDisplay] = useState("");
+  const [index, setIndex] = useState(0);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
-    let i = 0;
+    let interval: number;
 
-    const interval = setInterval(() => {
-      setDisplay(text.slice(0, i));
-      i++;
+    if (!deleting) {
+      // typing
+      interval = window.setInterval(() => {
+        setDisplay((prev) => text.slice(0, prev.length + 1));
+      }, speed);
 
-      if (i > text.length) {
+      if (display === text) {
         clearInterval(interval);
+        setTimeout(() => setDeleting(true), pause);
       }
-    }, speed);
+    } else {
+      // deleting
+      interval = window.setInterval(() => {
+        setDisplay((prev) => prev.slice(0, prev.length - 1));
+      }, speed);
+
+      if (display === "") {
+        clearInterval(interval);
+        setDeleting(false);
+        setIndex((prev) => prev + 1);
+      }
+    }
 
     return () => clearInterval(interval);
-  }, [text, speed]);
+  }, [display, deleting, text, speed, pause]);
 
   return (
     <h1
@@ -29,8 +46,9 @@ export default function TypingTitle({ text, speed = 120 }: Props) {
         color: "white",
         fontFamily: "League Spartan",
         fontWeight: 800,
-        fontSize: "48px",
+        fontSize: "150px",
         textAlign: "center",
+        textShadow: "5px 5px 0px #1ed760",
       }}
     >
       {display}
