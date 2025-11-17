@@ -1,5 +1,7 @@
+// TODO: detect reloads and get new codes for everything so it doesnt break after expireSecs
+
 import React, { useEffect, useState } from "react";
-import PlaylistCard from "./playlistCard";
+import PlaylistCard from "./PlaylistCard";
 
 interface PlaylistsProps {
   expireSecs: number;
@@ -13,6 +15,20 @@ interface PlaylistsData {
   songAmnt: number;
   length: number;
   image: string;
+  author: string;
+}
+
+interface PlaylistItem {
+  name: string;
+  tracks: {
+    total: number;
+  };
+  images: Array<{
+    url: string;
+  }>;
+  owner: {
+    display_name: string;
+  };
 }
 
 const Playlists: React.FC<PlaylistsProps> = ({
@@ -32,18 +48,27 @@ const Playlists: React.FC<PlaylistsProps> = ({
     })
       .then((res) => res.json())
       .then(({ items }) => {
-        const mapped: PlaylistsData[] = (items ?? []).map((i: any) => ({
-          name: i.name,
-          songAmnt: i.tracks.total,
-          length: 120, // placeholder
-          image: i.images[0]?.url || "",
-        }));
+        console.log("items", items);
+        console.log(items.length);
+        const mapped: PlaylistsData[] = ((items as PlaylistItem[]) ?? []).map(
+          (i) => ({
+            name: i.name,
+            songAmnt: i.tracks.total,
+            length: 120, // placeholder
+            image: i.images[0]?.url || "",
+            author: i.owner["display_name"] || "Unknown",
+          })
+        );
 
         setPlaylists(mapped);
       });
   }, []);
 
-  useEffect(() => console.log(playlists), [playlists]);
+  useEffect(() => {
+    console.log(Object.keys(playlists).length);
+    playlists.forEach((p) => console.log(p.author));
+    console.log(playlists);
+  }, [playlists]);
 
   return (
     <div
@@ -59,6 +84,10 @@ const Playlists: React.FC<PlaylistsProps> = ({
           fontWeight: "800",
           fontSize: "80px",
           textShadow: "5px 5px 0px #1ed760",
+          cursor: "pointer",
+        }}
+        onClick={() => {
+          window.location.href = "/";
         }}
       >
         PLAYLISTS
@@ -94,16 +123,26 @@ const Playlists: React.FC<PlaylistsProps> = ({
           RANDOMIZE PLAYLIST
         </span>
       </button>
-
-      {playlists.map((playlist) => (
-        <PlaylistCard
-          key={playlist.name}
-          name={playlist.name}
-          songs={playlist.songAmnt}
-          minutes={playlist.length}
-          image={playlist.image}
-        />
-      ))}
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "40px",
+          paddingTop: "10%",
+          paddingLeft: "2%",
+        }}
+      >
+        {playlists.map((playlist) => (
+          <PlaylistCard
+            key={playlist.name}
+            name={playlist.name}
+            songs={playlist.songAmnt}
+            minutes={playlist.length}
+            image={playlist.image}
+            author={playlist.author}
+          />
+        ))}
+      </div>
     </div>
   );
 };
