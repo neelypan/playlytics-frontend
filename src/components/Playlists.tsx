@@ -1,22 +1,25 @@
-// TODO: detect reloads and get new codes for everything so it doesnt break after expireSecs
-
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import PlaylistCard from "./PlaylistCard";
+import Randomize from "./Randomize";
+
+import type { Tokens } from "./Callback";
 
 interface PlaylistsProps {
   expireSecs: number;
   accessToken: string;
+  setAccessToken: React.Dispatch<React.SetStateAction<string>>;
   refreshToken: string;
   scope: string;
   onGoHome?: () => void;
 }
 
-interface PlaylistsData {
+export interface PlaylistsData {
   name: string;
   songAmnt: number;
   length: number;
   image: string;
   author: string;
+  external_urls?: string;
 }
 
 interface PlaylistItem {
@@ -39,39 +42,78 @@ const Playlists: React.FC<PlaylistsProps> = ({
   refreshToken,
   scope,
   onGoHome,
+  setAccessToken,
 }) => {
   const [playlists, setPlaylists] = useState<PlaylistsData[]>([]);
+  const [randomPlaylist, setRandomPlaylist] = useState<PlaylistsData | null>(
+    null
+  );
 
+  // fix accessToken
   useEffect(() => {
-    fetch("https://api.spotify.com/v1/me/playlists", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    })
-      .then((res) => res.json())
-      .then(({ items }) => {
+    if (accessToken) return;
+
+    const saved = localStorage.getItem("spotifyTokens");
+    if (!saved) return;
+
+    const tokens: Tokens = JSON.parse(saved);
+    if (tokens?.accessToken) setAccessToken(tokens.accessToken); // if the access token is defined update accessToken state to equal the localstorage value
+  }, [accessToken, setAccessToken]);
+
+  // get user playlists
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("https://api.spotify.com/v1/me/playlists", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        if (!res.ok) {
+          console.error(
+            "Failed to fetch playlists",
+            res.status,
+            await res.text()
+          );
+          return;
+        }
+
+        const data = await res.json();
+        const items = data.items as PlaylistItem[] | undefined;
+
         console.log("items", items);
-        console.log(items.length);
-        const mapped: PlaylistsData[] = ((items as PlaylistItem[]) ?? []).map(
-          (i) => ({
-            name: i.name,
-            songAmnt: i.tracks.total,
-            length: 120, // placeholder
-            image: i.images[0]?.url || "",
-            author: i.owner["display_name"] || "Unknown",
-            external_urls: i.external_urls.spotify,
-          })
-        );
+        console.log(items?.length);
+
+        const mapped: PlaylistsData[] = (items ?? []).map((playlist) => ({
+          name: playlist.name,
+          songAmnt: playlist.tracks.total,
+          length: 120, // placeholder
+          image: playlist.images[0]?.url || "",
+          author: playlist.owner["display_name"] || "Unknown",
+          external_urls: playlist.external_urls.spotify,
+        }));
 
         setPlaylists(mapped);
-      });
-  }, []);
+      } catch (err) {
+        console.error("Error fetching playlists:", err);
+      }
+    })();
+  }, [accessToken]);
 
+  // show random playlist
   useEffect(() => {
-    console.log(Object.keys(playlists).length);
-    playlists.forEach((p) => console.log(p.author));
-    console.log(playlists);
+    randomPlaylist
+      ? console.log(`Random Playlist:\n${randomPlaylist.name}`)
+      : console.log("You have no playlists");
+  }, [randomPlaylist]);
+
+  // test logs
+  useEffect(() => {
+    console.log("playlist amount:", Object.keys(playlists).length);
+    playlists.forEach((p) => console.log("owners: ", p.author));
+    console.log("playlists:", playlists);
   }, [playlists]);
 
   return (
@@ -97,36 +139,8 @@ const Playlists: React.FC<PlaylistsProps> = ({
         PLAYLISTS
       </h1>
 
-      <button
-        onClick={() => {
-          alert(import.meta.env.VITE_FUN_LITTLE_MESSAGE);
-        }}
-        style={{
-          position: "absolute",
-          top: "20px",
-          right: "20px",
-          background: "#353535",
-          border: "4px solid #1ed760",
-          borderRadius: "80px",
-          padding: "5px 20px",
-          height: "70px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          cursor: "pointer",
-        }}
-      >
-        <span
-          style={{
-            color: "white",
-            fontWeight: "800",
-            fontSize: "26px",
-            fontFamily: "League Spartan",
-          }}
-        >
-          RANDOMIZE PLAYLIST
-        </span>
-      </button>
+      <Randomize playlists={playlists} setRandomPlaylist={setRandomPlaylist} />
+
       <div
         style={{
           display: "flex",

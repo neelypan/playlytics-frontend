@@ -5,19 +5,20 @@ const Login = () => {
   console.log("API KEY:", apiKey);
   console.log("API URL:", api);
 
-  const getAuthUrl = () => {
-    fetch(`${api}/api/auth/url`, {
+  const getAuthUrl = async () => {
+    const res = await fetch(`${api}/api/auth/url`, {
       method: "GET",
       headers: {
         "X-Frontend-Api-Key": apiKey,
       },
-    })
-      .then((r) => r.json())
-      .then((data) => {
-        const { url } = data;
-        window.location.href = url;
-        return;
-      });
+    });
+
+    const data = await res.json();
+    const { url } = data;
+
+    window.location.href = url;
+
+    return;
   };
 
   return (
