@@ -1,3 +1,5 @@
+import loginButtonImage from "../assets/login-button.png";
+
 const Login = () => {
   const apiKey = import.meta.env.VITE_FRONTEND_API_KEY;
   const api = import.meta.env.VITE_BACKEND_URL;
@@ -44,7 +46,7 @@ const Login = () => {
       }}
     >
       <img
-        src="/src/assets/spotifylogo.png"
+        src={loginButtonImage}
         alt="spotify"
         style={{ width: "55px", height: "55px" }}
       />
