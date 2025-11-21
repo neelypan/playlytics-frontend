@@ -1,5 +1,5 @@
 import React from "react";
-import type { PlaylistsData } from "./Playlists";
+import type { PlaylistsData } from "./Playlists/playlistTypes";
 
 interface RandomizeProps {
   playlists: PlaylistsData[];
