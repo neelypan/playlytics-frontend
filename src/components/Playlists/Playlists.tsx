@@ -1,67 +1,33 @@
-import React, { useEffect, useRef, useState } from "react";
-import PlaylistCard from "./PlaylistCard";
-import Randomize from "./Randomize";
+import React, { useEffect, useState } from "react";
+import PlaylistCard from "../PlaylistCard";
+import Randomize from "../Randomize";
 
-import type { Tokens } from "./Callback";
+import { refresh } from "../../helpers";
+import { useSpotifyTokens } from "../../hooks/useSpotifyTokens";
 
-interface PlaylistsProps {
-  expireSecs: number;
-  accessToken: string;
-  setAccessToken: React.Dispatch<React.SetStateAction<string>>;
-  refreshToken: string;
-  scope: string;
-  onGoHome?: () => void;
-}
+import type {
+  PlaylistItem,
+  PlaylistsData,
+  PlaylistsProps,
+} from "./playlistTypes";
 
-export interface PlaylistsData {
-  name: string;
-  songAmnt: number;
-  length: number;
-  image: string;
-  author: string;
-  external_urls?: string;
-}
-
-interface PlaylistItem {
-  name: string;
-  tracks: {
-    total: number;
-  };
-  images: Array<{
-    url: string;
-  }>;
-  owner: {
-    display_name: string;
-  };
-  external_urls: { spotify: string };
-}
-
-const Playlists: React.FC<PlaylistsProps> = ({
-  expireSecs,
-  accessToken,
-  refreshToken,
-  scope,
-  onGoHome,
-  setAccessToken,
-}) => {
+const Playlists: React.FC<PlaylistsProps> = ({ onGoHome }) => {
   const [playlists, setPlaylists] = useState<PlaylistsData[]>([]);
   const [randomPlaylist, setRandomPlaylist] = useState<PlaylistsData | null>(
     null
   );
 
-  // fix accessToken
-  useEffect(() => {
-    if (accessToken) return;
-
-    const saved = localStorage.getItem("spotifyTokens");
-    if (!saved) return;
-
-    const tokens: Tokens = JSON.parse(saved);
-    if (tokens?.accessToken) setAccessToken(tokens.accessToken); // if the access token is defined update accessToken state to equal the localstorage value
-  }, [accessToken, setAccessToken]);
+  const {
+    accessToken,
+    refreshToken,
+    setAccessToken,
+    setRefreshToken,
+    setExpireSecs,
+  } = useSpotifyTokens();
 
   // get user playlists
   useEffect(() => {
+    if (!accessToken) return;
     (async () => {
       try {
         const res = await fetch("https://api.spotify.com/v1/me/playlists", {
@@ -77,6 +43,17 @@ const Playlists: React.FC<PlaylistsProps> = ({
             res.status,
             await res.text()
           );
+
+          if (res.status === 401) {
+            // if expired refresh
+            const refreshRes = await refresh(refreshToken);
+            console.log("refreshRes:", refreshRes);
+
+            setAccessToken(refreshRes.access_token);
+            setRefreshToken(refreshRes.refresh_token);
+            setExpireSecs(refreshRes.expires_in);
+          }
+
           return;
         }
 
@@ -100,13 +77,18 @@ const Playlists: React.FC<PlaylistsProps> = ({
         console.error("Error fetching playlists:", err);
       }
     })();
-  }, [accessToken]);
+  }, [
+    accessToken,
+    refreshToken,
+    setAccessToken,
+    setExpireSecs,
+    setRefreshToken,
+  ]);
 
   // show random playlist
   useEffect(() => {
-    randomPlaylist
-      ? console.log(`Random Playlist:\n${randomPlaylist.name}`)
-      : console.log("You have no playlists");
+    if (randomPlaylist) console.log(`Random Playlist:\n${randomPlaylist.name}`);
+    else console.log("You have no playlists");
   }, [randomPlaylist]);
 
   // test logs
@@ -158,6 +140,7 @@ const Playlists: React.FC<PlaylistsProps> = ({
             minutes={playlist.length}
             image={playlist.image}
             author={playlist.author}
+            spotifyUrl={playlist.external_urls ?? ""}
           />
         ))}
       </div>

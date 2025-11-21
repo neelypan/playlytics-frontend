@@ -6,7 +6,11 @@ interface Props {
   pause?: number;
 }
 
-export default function TypingTitle({ text, speed = 120, pause = 1000 }: Props) {
+export default function TypingTitle({
+  text,
+  speed = 120,
+  pause = 1000,
+}: Props) {
   const [display, setDisplay] = useState("");
   const [index, setIndex] = useState(0);
   const [deleting, setDeleting] = useState(false);

@@ -1,3 +1,5 @@
+import logo from "../assets/spotifylogo.png";
+
 const Login = () => {
   const apiKey = import.meta.env.VITE_FRONTEND_API_KEY;
   const api = import.meta.env.VITE_BACKEND_URL;
@@ -43,11 +45,7 @@ const Login = () => {
         marginTop: "150px",
       }}
     >
-      <img
-        src="/src/assets/spotifylogo.png"
-        alt="spotify"
-        style={{ width: "55px", height: "55px" }}
-      />
+      <img src={logo} alt="spotify" style={{ width: "55px", height: "55px" }} />
       <span
         style={{
           color: "white",

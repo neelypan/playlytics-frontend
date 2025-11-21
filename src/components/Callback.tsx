@@ -1,26 +1,27 @@
-import { useEffect, useRef, useState } from "react";
-import Playlists from "./Playlists";
-import Loading from "./Loading/Loading";
-import Landing from "./Landing";
+import { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
-export interface Tokens {
-  accessToken: string;
-  refreshToken: string;
-  scope: string;
-  expireSecs: number;
-}
+import Playlists from "./Playlists/Playlists";
+import Loading from "./Loading/Loading";
+
+import { useSpotifyTokens } from "../hooks/useSpotifyTokens";
 
 export default function Callback() {
   const apiKey = import.meta.env.VITE_FRONTEND_API_KEY;
   const api = import.meta.env.VITE_BACKEND_URL;
+  const navigate = useNavigate();
   const params = new URLSearchParams(window.location.search);
 
-  const [showLanding, setShowLanding] = useState(false);
-  const [processed, setProcessed] = useState(false);
-  const [expireSecs, setExpireSecs] = useState(0);
-  const [accessToken, setAccessToken] = useState("");
-  const [refreshToken, setRefreshToken] = useState("");
-  const [scope, setScope] = useState("");
+  const {
+    accessToken,
+    setAccessToken,
+    refreshToken,
+    setRefreshToken,
+    scope,
+    setScope,
+    expireSecs,
+    setExpireSecs,
+  } = useSpotifyTokens();
 
   const code = params.get("code");
   const state = params.get("state");
@@ -28,26 +29,16 @@ export default function Callback() {
   const exchanged = useRef(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem("spotifyTokens");
-    const tokens: Tokens | null = saved ? JSON.parse(saved) : null;
-
-    if (tokens?.accessToken) {
-      console.log("tokens alr in localstorage:", tokens);
-      setAccessToken(tokens.accessToken);
-      setRefreshToken(tokens.refreshToken);
-      setScope(tokens.scope);
-      setExpireSecs(tokens.expireSecs);
-
-      setProcessed(true);
-
+    if (accessToken) {
       return;
     }
+
+    if (!code || !state) return;
 
     if (exchanged.current) return;
     exchanged.current = true;
 
-    if (!code || !state) return;
-
+    // exchange code for auth token and refresh token and time till expiration and scope
     (async () => {
       try {
         const res = await fetch(`${api}/api/auth/exchange`, {
@@ -66,45 +57,32 @@ export default function Callback() {
         const data = await res.json();
         console.log("Tokens:", data);
 
-        const tokens: Tokens = {
-          accessToken: data.access_token,
-          refreshToken: data.refresh_token,
-          scope: data.scope,
-          expireSecs: data.expires_in,
-        };
-
-        console.log("tokens:", tokens);
-        localStorage.setItem("spotifyTokens", JSON.stringify(tokens));
-
-        setAccessToken(tokens.accessToken);
-        setRefreshToken(tokens.refreshToken);
-        setScope(tokens.scope);
-        setExpireSecs(tokens.expireSecs);
-
-        setProcessed(true);
+        setAccessToken(data.access_token);
+        setRefreshToken(data.refresh_token);
+        setScope(data.scope);
+        setExpireSecs(data.expires_in);
       } catch {
         console.log("Exchange failed");
       }
     })();
-  }, []);
-
-  if (showLanding) {
-    return <Landing />;
-  }
+  }, [
+    api,
+    apiKey,
+    code,
+    state,
+    accessToken,
+    setAccessToken,
+    setRefreshToken,
+    setScope,
+    setExpireSecs,
+  ]);
 
   return (
     <div>
-      {!processed ? (
+      {!accessToken ? (
         <Loading />
       ) : (
-        <Playlists
-          accessToken={accessToken}
-          setAccessToken={setAccessToken}
-          refreshToken={refreshToken}
-          scope={scope}
-          expireSecs={expireSecs}
-          onGoHome={() => setShowLanding(true)}
-        />
+        <Playlists onGoHome={() => navigate("/")} />
       )}
     </div>
   );
