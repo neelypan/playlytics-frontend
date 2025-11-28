@@ -20,16 +20,28 @@ function PlaylistCard({
 }: Props) {
   return (
     <div className="playlist-card">
-      <img src={image} className="playlist-card-cover" />
+  <img src={image} className="playlist-card-cover" />
 
-      <p className="playlist-card-name">{name}</p>
-      <p className="playlist-card-author">{author}</p>
+  <p className="playlist-card-name">{name}</p>
+  <p className="playlist-card-author">{author}</p>
 
-      <p className="playlist-card-info">
-        {songs} songs | {minutes} min
-      </p>
-      <DetailsButton url={spotifyUrl} />
-    </div>
+  <p className="playlist-card-info">
+    {songs} songs | {minutes} min
+  </p>
+
+  <div className="playlist-card-button">
+    <DetailsButton
+      playlistData={{
+        name,
+        author,
+        songs,
+        minutes,
+        image,
+        spotifyUrl,
+      }}
+    />
+  </div>
+</div>
   );
 }
 

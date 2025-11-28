@@ -33,3 +33,10 @@
   opacity: 0.8;
   font-family: "Glacial Indifference";
 }
+
+.playlist-card-button {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+

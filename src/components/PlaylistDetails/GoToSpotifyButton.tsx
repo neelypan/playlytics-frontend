@@ -1,4 +1,4 @@
-import spotifyLogo from "../assets/spotifylogo.png";
+import spotifyLogo from "../../assets/spotifylogo.png";
 
 type Props = {
   url: string;
