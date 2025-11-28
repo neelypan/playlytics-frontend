@@ -12,7 +12,6 @@ export default function TypingTitle({
   pause = 1000,
 }: Props) {
   const [display, setDisplay] = useState("");
-  const [index, setIndex] = useState(0);
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
@@ -37,7 +36,6 @@ export default function TypingTitle({
       if (display === "") {
         clearInterval(interval);
         setDeleting(false);
-        setIndex((prev) => prev + 1);
       }
     }
 

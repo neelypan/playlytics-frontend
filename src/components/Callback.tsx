@@ -15,11 +15,8 @@ export default function Callback() {
   const {
     accessToken,
     setAccessToken,
-    refreshToken,
     setRefreshToken,
-    scope,
     setScope,
-    expireSecs,
     setExpireSecs,
   } = useSpotifyTokens();
 
