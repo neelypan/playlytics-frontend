@@ -4,10 +4,12 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: left;
   justify-content: center;
   position: relative;
   overflow: hidden;
+  padding-left: 10%;
+  padding-top: 2.5%;
 }
 
 
@@ -31,7 +33,7 @@
   padding: 48px;
   border-radius: 30px;
   text-align: center;
-  max-width: 350px;
+  max-width: 275px;
 }
 
 .details-cover {
@@ -62,8 +64,29 @@
   font-family: "Glacial Indifference";
 }
 
+.right-bubble {
+  position: absolute;
+  top: 12.15%;
+  right: 10%;
+}
+
+
+.songs-scroll {
+  width: 825px;
+  max-height: 600px;
+  overflow-y: auto;    
+  overflow-x: hidden;   
+  padding-right: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+
+
 html, body {
   margin: 0;
   padding: 0;
   overflow: hidden;
 }
+

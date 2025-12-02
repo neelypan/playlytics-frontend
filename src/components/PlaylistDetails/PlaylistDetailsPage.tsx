@@ -1,6 +1,8 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import GoToSpotifyButton from "./GoToSpotifyButton";
 import "./PlaylistDetailsPage.css";
+import Songs from "./Songs";
+
 
 function PlaylistDetailsPage() {
   const location = useLocation();
@@ -24,6 +26,23 @@ function PlaylistDetailsPage() {
 
   return (
     <div className="details-page">
+
+      <div className="right-bubble">
+  <div className="songs-scroll">
+    {[...Array(songs)].map((_, i) => (
+      <Songs
+        key={i}
+        image={image}
+        name={name}
+        artist={author}
+        minutes={`${minutes} min`}
+        url={spotifyUrl}
+      />
+    ))}
+  </div>
+</div>
+
+
       <button className="back-button" onClick={() => navigate("/callback")}>
         ← BACK TO PLAYLISTS
       </button>

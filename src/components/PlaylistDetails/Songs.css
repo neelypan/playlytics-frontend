@@ -1,0 +1,41 @@
+.track-bubble {
+  width: 800px;
+  background-color: #2f2f2f;
+  padding: 12px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border: none;
+  cursor: pointer;
+}
+
+.track-bubble:focus {
+  outline: none;
+}
+
+
+.track-image {
+  width: 85px;
+  height: 85px;
+  border-radius: 6px;
+  object-fit: cover;
+  margin-left: 10px;
+}
+
+.track-text {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  color: white;
+  font-family: "League Spartan", sans-serif;
+  padding-right: 5%;
+  padding-left: 2.5%;
+  font-size: 20px;
+}
+
+.track-name {
+}
+
+.track-min {
+}
