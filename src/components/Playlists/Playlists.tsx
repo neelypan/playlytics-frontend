@@ -70,6 +70,7 @@ const Playlists: React.FC<PlaylistsProps> = ({ onGoHome }) => {
           image: playlist.images[0]?.url || "",
           author: playlist.owner["display_name"] || "Unknown",
           external_urls: playlist.external_urls.spotify,
+          id: playlist.id,
         }));
 
         setPlaylists(mapped);
@@ -100,7 +101,11 @@ const Playlists: React.FC<PlaylistsProps> = ({ onGoHome }) => {
 
   return (
     <div
-      style={{ backgroundColor: "#1f1f1f", width: "100vw", height: "100vh" }}
+      style={{
+        backgroundColor: "#1f1f1f",
+        width: "100vw",
+        minHeight: "100vh",
+      }}
     >
       <h1
         style={{
@@ -129,7 +134,7 @@ const Playlists: React.FC<PlaylistsProps> = ({ onGoHome }) => {
           flexWrap: "wrap",
           gap: "40px",
           paddingTop: "10%",
-          justifyContent: "center"
+          justifyContent: "center",
         }}
       >
         {playlists.map((playlist) => (
@@ -141,6 +146,7 @@ const Playlists: React.FC<PlaylistsProps> = ({ onGoHome }) => {
             image={playlist.image}
             author={playlist.author}
             spotifyUrl={playlist.external_urls ?? ""}
+            id={playlist.id}
           />
         ))}
       </div>
