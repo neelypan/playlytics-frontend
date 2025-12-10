@@ -12,7 +12,6 @@
   padding-top: 2.5%;
 }
 
-
 .back-button {
   position: absolute;
   top: 20px;
@@ -70,41 +69,34 @@
   right: 10%;
 }
 
-
 .songs-scroll {
   width: 825px;
   max-height: 600px;
-  overflow-y: auto;    
-  overflow-x: hidden;   
+  overflow-y: auto;
+  overflow-x: hidden;
   padding-right: 12px;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .songs-scroll::-webkit-scrollbar {
-  width: 10px;
+  display: none;
 }
 
-.songs-scroll::-webkit-scrollbar-track {
-  background: #1f1f1f;
-  border-radius: 10px;
-}
-
-.songs-scroll::-webkit-scrollbar-thumb {
-  background: #1ed760;
-  border-radius: 10px;
-}
-
-.songs-scroll::-webkit-scrollbar-thumb:hover {
-  background: #18b84f;
-}
-
-
-
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+}
