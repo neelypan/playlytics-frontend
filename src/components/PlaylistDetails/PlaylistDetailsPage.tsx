@@ -16,8 +16,8 @@ type SpotifyPlaylistResponse = {
   tracks: {
     next: string | null;
     items: {
+      is_local: boolean;
       track: {
-        is_local: boolean;
         name: string;
         duration_ms: number;
         external_urls: { spotify: string };
