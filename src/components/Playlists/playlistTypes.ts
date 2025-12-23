@@ -5,9 +5,11 @@ export interface PlaylistsData {
   image: string;
   author: string;
   external_urls?: string;
+  id: string;
 }
 export interface PlaylistItem {
   name: string;
+  id: string;
   tracks: {
     total: number;
   };
