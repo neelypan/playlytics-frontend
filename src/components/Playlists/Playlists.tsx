@@ -14,7 +14,7 @@ import type {
 const Playlists: React.FC<PlaylistsProps> = ({ onGoHome }) => {
   const [playlists, setPlaylists] = useState<PlaylistsData[]>([]);
   const [randomPlaylist, setRandomPlaylist] = useState<PlaylistsData | null>(
-    null
+    null,
   );
 
   const {
@@ -41,7 +41,7 @@ const Playlists: React.FC<PlaylistsProps> = ({ onGoHome }) => {
           console.error(
             "Failed to fetch playlists",
             res.status,
-            await res.text()
+            await res.text(),
           );
 
           if (res.status === 401) {
@@ -66,7 +66,7 @@ const Playlists: React.FC<PlaylistsProps> = ({ onGoHome }) => {
         const mapped: PlaylistsData[] = (items ?? []).map((playlist) => ({
           name: playlist.name,
           songAmnt: playlist.tracks.total,
-          length: 120, // placeholder
+          length: 0,
           image: playlist.images[0]?.url || "",
           author: playlist.owner["display_name"] || "Unknown",
           external_urls: playlist.external_urls.spotify,

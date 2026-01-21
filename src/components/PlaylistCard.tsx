@@ -28,9 +28,7 @@ function PlaylistCard({
       <p className='playlist-card-name'>{name}</p>
       <p className='playlist-card-author'>{author}</p>
 
-      <p className='playlist-card-info'>
-        {songs} songs | {minutes} min
-      </p>
+      <p className='playlist-card-info'>{songs} songs</p>
 
       <div className='playlist-card-button'>
         <DetailsButton

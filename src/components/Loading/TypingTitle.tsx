@@ -35,7 +35,7 @@ export default function TypingTitle({
 
       if (display === "") {
         clearInterval(interval);
-        setDeleting(false);
+        setTimeout(() => setDeleting(false), pause);
       }
     }
 

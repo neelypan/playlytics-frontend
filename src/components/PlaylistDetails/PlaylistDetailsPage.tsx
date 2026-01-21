@@ -60,6 +60,7 @@ const PlaylistDetailsPage: React.FC<PlaylistDetailsProps> = () => {
   } = useSpotifyTokens();
 
   const [songList, setSongList] = useState<SongInfo[] | null>(null);
+  const [playlistLength, setPlaylistLength] = useState<number>(0);
 
   const location = useLocation();
   const state = location.state as PlaylistCardProps | undefined;
@@ -135,6 +136,13 @@ const PlaylistDetailsPage: React.FC<PlaylistDetailsProps> = () => {
         });
 
         setSongList(songInfo);
+        // Calculate total playlist length in minutes
+        const totalDurationMs = songInfo.reduce(
+          (sum, song) => sum + song.durationMs,
+          0,
+        );
+        const lengthInMinutes = Math.round(totalDurationMs / 60000);
+        setPlaylistLength(lengthInMinutes);
         console.log("songInfo", songInfo);
       } catch (err) {
         console.error("Error fetching playlist tracks", err);
@@ -154,7 +162,7 @@ const PlaylistDetailsPage: React.FC<PlaylistDetailsProps> = () => {
   if (!state) {
     return <Navigate to='/callback' replace />;
   }
-  const { name, author, songs, minutes, image, spotifyUrl } = state;
+  const { name, author, songs, image, spotifyUrl } = state;
   console.log(image);
   console.log("playlist image", image);
   return (
@@ -189,7 +197,7 @@ const PlaylistDetailsPage: React.FC<PlaylistDetailsProps> = () => {
         <p className='details-author'>{author}</p>
 
         <p className='details-info'>
-          {songs} songs | {minutes} min
+          {songs} songs | {playlistLength} min
         </p>
 
         <GoToSpotifyButton url={spotifyUrl} />
