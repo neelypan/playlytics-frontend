@@ -155,6 +155,7 @@ const PlaylistDetailsPage: React.FC<PlaylistDetailsProps> = () => {
     return <Navigate to='/callback' replace />;
   }
   const { name, author, songs, minutes, image, spotifyUrl } = state;
+  console.log(image);
   console.log("playlist image", image);
   return (
     <div className='details-page'>

@@ -8,7 +8,10 @@ interface RandomizeProps {
   setRandomPlaylist: React.Dispatch<React.SetStateAction<PlaylistsData | null>>;
 }
 
-const Randomize: React.FC<RandomizeProps> = ({ playlists, setRandomPlaylist }) => {
+const Randomize: React.FC<RandomizeProps> = ({
+  playlists,
+  setRandomPlaylist,
+}) => {
   const navigate = useNavigate();
 
   const getRandomPlaylist = () => {
@@ -30,6 +33,7 @@ const Randomize: React.FC<RandomizeProps> = ({ playlists, setRandomPlaylist }) =
 
     navigate("/playlist-details", {
       state: {
+        id: rand.id,
         name: rand.name,
         author: rand.author,
         songs: rand.songAmnt,
@@ -41,8 +45,8 @@ const Randomize: React.FC<RandomizeProps> = ({ playlists, setRandomPlaylist }) =
   };
 
   return (
-    <button className="randomize-button" onClick={handleRandom}>
-      <span className="randomize-text">RANDOMIZE PLAYLIST</span>
+    <button className='randomize-button' onClick={handleRandom}>
+      <span className='randomize-text'>RANDOMIZE PLAYLIST</span>
     </button>
   );
 };

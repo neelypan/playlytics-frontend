@@ -17,12 +17,13 @@ function DetailsButton({
   songs,
   minutes,
   spotifyUrl,
+  image,
 }: PlaylistData) {
   const navigate = useNavigate();
 
   const handleClick = () => {
     navigate("/playlist-details", {
-      state: { id, name, author, songs, minutes, spotifyUrl },
+      state: { id, name, author, songs, minutes, spotifyUrl, image },
     });
   };
 
@@ -49,7 +50,7 @@ function DetailsButton({
           border: "4px solid #1ed760",
         }}
       >
-        PLAYLIST DETAILS
+        <span>PLAYLIST DETAILS</span>
       </button>
     </div>
   );
