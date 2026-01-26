@@ -16,14 +16,19 @@ const loadSavedTokens = (): Tokens | null => {
   }
 };
 
+/**
+ * Manages Spotify tokens in local storage.
+ *
+ * @returns {object} An object containing the Spotify tokens and their setters.
+ */
 export const useSpotifyTokens = () => {
-  const saved = loadSavedTokens();
+  const saved = loadSavedTokens(); // load tokens from local storage if its null that means localstorage is empty
 
   const [accessToken, setAccessToken] = useState(
-    () => saved?.accessToken ?? ""
+    () => saved?.accessToken ?? "",
   );
   const [refreshToken, setRefreshToken] = useState(
-    () => saved?.refreshToken ?? ""
+    () => saved?.refreshToken ?? "",
   );
   const [scope, setScope] = useState(() => saved?.scope ?? "");
   const [expireSecs, setExpireSecs] = useState(() => saved?.expireSecs ?? "");
