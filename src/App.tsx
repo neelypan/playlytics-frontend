@@ -12,12 +12,13 @@ interface AppProps {
 function App({ forceLanding = false }: AppProps) {
   return (
     <Routes>
-      <Route path="/" element={<Landing />} />
-      {!forceLanding && <Route path="/callback" element={<Callback />} />}
-      {!forceLanding && <Route path="/playlist-details" element={<PlaylistDetailsPage />} />}
-      <Route path="*" element={<Landing />} />
+      <Route path='/' element={<Landing />} />
+      {!forceLanding && <Route path='/callback' element={<Callback />} />}
+      {!forceLanding && (
+        <Route path='/playlist-details' element={<PlaylistDetailsPage />} />
+      )}
+      <Route path='*' element={<Landing />} />
     </Routes>
-
   );
 }
 

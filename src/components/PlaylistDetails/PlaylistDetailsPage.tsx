@@ -7,33 +7,25 @@ import { useEffect, useState } from "react";
 import { refresh } from "../../helpers";
 import type { PlaylistCardProps } from "../PlaylistCard";
 
-interface PlaylistDetailsProps {
-  playlistId: string;
-  songs: number;
-}
-
 type SpotifyPlaylistResponse = {
-  tracks: {
-    next: string | null;
-    items: {
-      is_local: boolean;
-      track: {
+  next: string | null;
+  items: {
+    is_local: boolean;
+    track: {
+      name: string;
+      duration_ms: number;
+      external_urls: { spotify: string };
+      album: {
         name: string;
-        duration_ms: number;
         external_urls: { spotify: string };
-        album: {
-          name: string;
-          external_urls: { spotify: string };
-          images: { url: string }[];
-        };
-        artists: { name: string; external_urls: { spotify: string } }[];
-      } | null;
-    }[];
-  };
+        images: { url: string }[];
+      };
+      artists: { name: string; external_urls: { spotify: string } }[];
+    } | null;
+  }[];
 };
 
 interface SongInfo {
-  next: string | null;
   trackName: string;
   trackUrl: string;
 
@@ -50,7 +42,7 @@ interface SongInfo {
   is_local?: boolean;
 }
 
-const PlaylistDetailsPage: React.FC<PlaylistDetailsProps> = () => {
+const PlaylistDetailsPage: React.FC = () => {
   const {
     accessToken,
     refreshToken,
@@ -71,8 +63,8 @@ const PlaylistDetailsPage: React.FC<PlaylistDetailsProps> = () => {
 
     const fetchTracks = async () => {
       try {
-        const makeRequest = async (token: string) => {
-          return fetch(`https://api.spotify.com/v1/playlists/${state.id}`, {
+        const makeRequest = async (url: string, token: string) => {
+          return fetch(url, {
             method: "GET",
             headers: {
               Authorization: `Bearer ${token}`,
@@ -80,70 +72,79 @@ const PlaylistDetailsPage: React.FC<PlaylistDetailsProps> = () => {
           });
         };
 
-        // first attempt
-        let res = await makeRequest(accessToken);
+        let currentToken = accessToken;
+        let allSongs: SongInfo[] = [];
+        let nextUrl: string | null =
+          `https://api.spotify.com/v1/playlists/${state.id}/tracks`;
 
-        // handle expired token
-        if (res.status === 401) {
-          const refreshRes = await refresh(refreshToken);
-          console.log("refreshRes:", refreshRes);
+        // Fetch all pages of tracks
+        while (nextUrl) {
+          let res = await makeRequest(nextUrl, currentToken);
 
-          setAccessToken(refreshRes.access_token);
-          setRefreshToken(refreshRes.refresh_token);
-          setExpireSecs(refreshRes.expires_in);
+          // handle expired token
+          if (res.status === 401) {
+            const refreshRes = await refresh(refreshToken);
+            console.log("refreshRes:", refreshRes);
 
-          // try again with new token
-          res = await makeRequest(refreshRes.access_token);
-        }
+            setAccessToken(refreshRes.access_token);
+            setRefreshToken(refreshRes.refresh_token);
+            setExpireSecs(refreshRes.expires_in);
 
-        if (!res.ok) {
-          console.error("get playlist failed:", res.status, res.statusText);
-          console.error(await res.text());
-          return;
-        }
-
-        const data: SpotifyPlaylistResponse = await res.json();
-
-        const songInfo: SongInfo[] = data.tracks.items.map((song) => {
-          const track = song.track;
-          if (!track) {
-            return {
-              next: data.tracks.next,
-              trackName: song.is_local ? "Local Track" : "Unknown Track",
-              trackUrl: "",
-              albumName: "",
-              albumUrl: "",
-              albumImageUrl: "",
-              durationMs: 0,
-              artists: [],
-              is_local: song.is_local,
-            };
-          } else {
-            return {
-              next: data.tracks.next,
-              trackName: track.name,
-              trackUrl: track.external_urls.spotify,
-              albumName: track.album.name,
-              albumUrl: track.album.external_urls.spotify,
-              albumImageUrl: track.album.images[0]?.url ?? "",
-              durationMs: track.duration_ms,
-              artists: track.artists.map((a) => ({
-                name: a.name,
-                url: a.external_urls.spotify,
-              })),
-            };
+            currentToken = refreshRes.access_token;
+            // retry with new token
+            res = await makeRequest(nextUrl, currentToken);
           }
-        });
 
-        setSongList(songInfo);
+          if (!res.ok) {
+            console.error("get playlist failed:", res.status, res.statusText);
+            console.error(await res.text());
+            return;
+          }
+
+          const data: SpotifyPlaylistResponse = await res.json();
+
+          const songInfo: SongInfo[] = data.items.map((song) => {
+            const track = song.track;
+            if (!track) {
+              return {
+                trackName: song.is_local ? "Local Track" : "Unknown Track",
+                trackUrl: "",
+                albumName: "",
+                albumUrl: "",
+                albumImageUrl: "",
+                durationMs: 0,
+                artists: [],
+                is_local: song.is_local,
+              };
+            } else {
+              return {
+                trackName: track.name,
+                trackUrl: track.external_urls.spotify,
+                albumName: track.album.name,
+                albumUrl: track.album.external_urls.spotify,
+                albumImageUrl: track.album.images[0]?.url ?? "",
+                durationMs: track.duration_ms,
+                artists: track.artists.map((a) => ({
+                  name: a.name,
+                  url: a.external_urls.spotify,
+                })),
+              };
+            }
+          });
+
+          allSongs = [...allSongs, ...songInfo];
+          nextUrl = data.next;
+        }
+
+        setSongList(allSongs);
         // Calculate total playlist length in minutes
-        const totalDurationMs = songInfo.reduce(
+        const totalDurationMs = allSongs.reduce(
           (sum, song) => sum + song.durationMs,
           0,
         );
         const lengthInMinutes = Math.round(totalDurationMs / 60000);
         setPlaylistLength(lengthInMinutes);
-        console.log("songInfo", songInfo);
+        console.log("songInfo", allSongs);
       } catch (err) {
         console.error("Error fetching playlist tracks", err);
       }
